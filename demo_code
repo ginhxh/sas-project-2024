@@ -1,0 +1,40 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string.h>
+#include <math.h>
+#include <ctype.h>
+
+int main(){char mot[40];int count=0;
+while(count<5){
+        printf("enter a motpass ");
+
+scanf(" %[^\n]",mot);
+int longr=strlen(mot);
+int digi =0;int alph=0;
+
+for(int i=0 ;i<longr;i++){
+   if(isdigit(mot[i])){digi=1;}
+   if(isalpha(mot[i])){alph=1;}
+
+}
+   if(digi==1&&alph!=1&&longr>=8){printf ("add a caractere ");}
+   if(digi!=1&&alph==1&&longr>=8){printf ("add a number ");}
+
+   if(digi==1&&alph==1&&longr<8){printf ("must be bigger then 8");}
+   if(digi==1&&alph==1&&longr>=8){printf ("coreect %s",mot);return 0;}
+
+
+   else {printf("sorry\n");
+count++;
+
+}
+}
+
+
+printf("3 times incorrect try after 1heur");
+return 1;
+
+
+
+}
