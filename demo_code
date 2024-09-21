@@ -7,36 +7,32 @@
 #include <unistd.h>
 
 typedef struct{
-char name[20];
-char mot_pass[40];
-char role[40];
-}user;
-
+    char name[20];
+    char mot_pass[40];
+    char role[40];
+} user;
 
 typedef struct{
-int id ;
-char motif[40] ;
-char description[250] ;
-char categorie[30] ;
-char status[30] ;
-time_t date;
-char prayority[30];
-char client[40];
-}reclamation;
+    int id ;
+    char motif[40];
+    char description[250];
+    char categorie[30];
+    char status[30];
+    time_t date;
+    char prayority[30];
+    char client[40];
+} reclamation;
 
-int count=0;
-int reclama=0;
+int count = 0;
+int reclama = 0;
 char p1[4][20] = {"ahmed", "rabar", "casa", "tata"};
 char p2[4][20] = {"cat", "chat", "dog", "nana"};
-
 
 void enter_rec(reclamation r[], int reclama, char client_name[]) {
     int pp1 = 0, pp2 = 0;
 
-
-
     printf("Bonjour, quel est le motif de votre reclamation : ");
-        strcpy(r[reclama].client, client_name);
+    strcpy(r[reclama].client, client_name);
 
     scanf(" %[^\n]", r[reclama].motif);
 
@@ -60,157 +56,150 @@ void enter_rec(reclamation r[], int reclama, char client_name[]) {
     } else if (pp1) {
         strcpy(r[reclama].prayority, "premier class");
     } else if (pp2) {
-        strcpy(r[reclama].prayority, "deuxième class");
+        strcpy(r[reclama].prayority, "deuxieme class");
     } else {
         strcpy(r[reclama].prayority, "classe normale");
     }
-        srand(time(0));
-       r[reclama].id = rand()%1000;
 
+    srand(time(0));
+    r[reclama].id = rand() % 1000;
 
-
-
-       printf("your reclamtion done\n");
+    printf("Votre reclamation a ete enregistree.\n");
 }
 
 void afichag(reclamation r[], int reclama) {
     if (reclama == 0) {
-        printf("Aucune réclamation à afficher.\n");
+        printf("Aucune reclamation a afficher.\n");
         return;
     }
 
     for (int i = 0; i < reclama; i++) {
         printf("ID : %d\n", r[i].id);
-        printf("client : %s\n", r[i].client);
-
+        printf("Client : %s\n", r[i].client);
         printf("Motif : %s\n", r[i].motif);
         printf("Description : %s\n", r[i].description);
-        printf("Catégorie : %s\n", r[i].categorie);
-        printf("Priorité : %s\n", r[i].prayority);
+        printf("Categorie : %s\n", r[i].categorie);
+        printf("Priorite : %s\n", r[i].prayority);
         printf("\n");
     }
 }
 
+void sign_up_user(user u[]) {
+    int valide = 0;
+    int att = 0;
 
-void sign_up_user(user u[]){
-int valide=0;
-int att=0;
+    printf("Bonjour !\n");
 
-printf("bonjour!\n");
-
-while(!valide){
-
-
-    printf("enter your name: ");
-    scanf(" %[^\n]",u[count].name);
-    if (strlen(u[count].name) < 3) {
-            printf("Name too small. Must be at least 3 characters.\n");
+    while (!valide) {
+        printf("Entrez votre nom : ");
+        scanf(" %[^\n]", u[count].name);
+        if (strlen(u[count].name) < 3) {
+            printf("Nom trop court. Doit contenir au moins 3 caracteres.\n");
             continue;
         }
-valide = 1;
+        valide = 1;
         for (int i = 0; i < strlen(u[count].name); i++) {
             if (isdigit(u[count].name[i])) {
                 valide = 0;
-                printf("Enter a valid name (no digits allowed).\n");
-                break;
+                printf("Entrez un nom valide (pas de chiffres autorises).\n");
+                att++;
             }
         }
     }
 
+    valide = 0;
+    int digi = 0, alpha = 0, up = 0, low = 0, spc = 0;
 
+    while (!valide && att < 3) {
+        printf("Entrez votre mot de passe : ");
+        scanf(" %[^\n]", u[count].mot_pass);
 
-    valide=0;
-
-    int digi=0;
-    int alpha=0;
-    int up=0;
-    int low=0;
-    int spc=0;
-    while(!valide&& att<3){
-
-    printf("enter your motpass: ");
-    scanf(" %[^\n]",u[count].mot_pass);
-
-int longer =strlen(u[count].mot_pass);
-int name=0;
-   for(int i=0;i<longer;i++){
-if(strstr(u[count].mot_pass,u[count].name)!= NULL)name=1;
-    if(isdigit(u[count].mot_pass[i]))digi=1;
-    if(isalpha(u[count].mot_pass[i]))alpha=1;
-        if(islower(u[count].mot_pass[i]))low=1;
-    if(isupper(u[count].mot_pass[i]))up=1;
-if(strchr("!@#$%^&*.,",u[count].mot_pass[i])) spc=1;}
-
-
-
-if(digi==1&&alpha==1&&spc==1&&up==1 &&low==1 &&longer>=8&&!name){
-valide=1;}
-
- else{printf("enter a valid motpass\n");att++;if(att>2){printf("you passed 3 times wait for 10s befor try again \n");sleep(20);  return;};
-}
-
-
-
-}
-printf("rigister done your id name %s and yor pass %s\n",u[count].name,u[count].mot_pass);
-count++;
-   }
-
-
-void sign_in_user( user u[], reclamation r[]){
-
-char name[30];
-char pass[30];
-int exist=0;
-int attptes=0;
-if(count==0){printf("enrgister first\n");return;}
-
-while(attptes<3&&!exist){printf("enter votre nom id: ");
-scanf(" %[^\n]",name);
-printf("enter votre password: ");
-scanf(" %[^\n]",pass);
-
-
-for(int i=0;i<count;i++){
- if (strcmp(u[i].name, name) == 0&&strcmp(u[i].mot_pass, pass) != 0) {
-               printf("password incoreect\n");
- }
-  if (strcmp(u[i].name, name) != 0&&strcmp(u[i].mot_pass, pass) == 0) {
-               printf("no name trouve\n");
- }
-
-attptes++;
-
-    if (strcmp(u[i].name, name) == 0&&strcmp(u[i].mot_pass, pass) == 0) {
-               printf("how can i help you today\n");
-
-            exist = 1;
-int x;
-while(1){printf("1-enter a reclamtion \n 2-quiter\n");
-scanf("%d",&x);
-switch(x){
-case 1: enter_rec(r, reclama, u[i].name);
-
-break;
-
-case 2: return;
-break;
-default: printf("1-2");
-}
-reclama++;
-            }break;
+        int longer = strlen(u[count].mot_pass);
+        int name = 0;
+        for (int i = 0; i < longer; i++) {
+            if (strstr(u[count].mot_pass, u[count].name) != NULL) name = 1;
+            if (isdigit(u[count].mot_pass[i])) digi = 1;
+            if (isalpha(u[count].mot_pass[i])) alpha = 1;
+            if (islower(u[count].mot_pass[i])) low = 1;
+            if (isupper(u[count].mot_pass[i])) up = 1;
+            if (strchr("!@#$%^&*.,", u[count].mot_pass[i])) spc = 1;
         }
-    }if(attptes==3){sleep(10);
-return ;}}
 
-
-
-
-if (!exist) {
-        printf("conixien echoc\n");
+        if (digi == 1 && alpha == 1 && spc == 1 && up == 1 && low == 1 && longer >= 8 && !name) {
+            valide = 1;
+        } else {
+            printf("Entrez un mot de passe valide.\n");
+            att++;
+            if (att > 2) {
+                printf("Vous avez fait plus de 3 tentatives. Attendez 10 secondes avant d'essayer a nouveau.\n");
+                sleep(10);
+                return;
+            }
+        }
     }
 
+    printf("Inscription complete. Votre identifiant est %s et votre mot de passe est %s.\n", u[count].name, u[count].mot_pass);
+    count++;
 }
+
+void sign_in_user(user u[], reclamation r[]) {
+    char name[30];
+    char pass[30];
+    int exist = 0;
+    int attptes = 0;
+
+    if (count == 0) {
+        printf("Enregistrez-vous d'abord.\n");
+        return;
+    }
+
+    while (attptes < 3 && !exist) {
+        printf("Entrez votre nom d'utilisateur : ");
+        scanf(" %[^\n]", name);
+        printf("Entrez votre mot de passe : ");
+        scanf(" %[^\n]", pass);
+
+        for (int i = 0; i < count; i++) {
+            if (strcmp(u[i].name, name) == 0 && strcmp(u[i].mot_pass, pass) != 0) {
+                printf("Mot de passe incorrect.\n");
+                attptes++;
+            }
+            if (strcmp(u[i].name, name) != 0 && strcmp(u[i].mot_pass, pass) == 0) {
+                printf("Nom d'utilisateur non trouve.\n");
+                attptes++;
+            }
+            if (strcmp(u[i].name, name) == 0 && strcmp(u[i].mot_pass, pass) == 0) {
+                printf("Comment puis-je vous aider aujourd'hui ?\n");
+                exist = 1;
+                int x;
+                while (1) {
+                    printf("1 - Ajouter une reclamation\n2 - Quitter\n");
+                    scanf("%d", &x);
+                    switch (x) {
+                        case 1:
+                            enter_rec(r, reclama, u[i].name);
+                            reclama++;
+                            break;
+                        case 2:
+                            return;
+                        default:
+                            printf("Choix invalide. Essayez encore.\n");
+                    }
+                }
+                break;
+            }
+        }
+        if (attptes == 3) {
+            sleep(10);
+            return;
+        }
+    }
+
+    if (!exist) {
+        printf("Connexion echouee.\n");
+    }
+}
+
 void sign_in_admin(user u[], reclamation r[]) {
     char admin_name[30] = "admin";
     char admin_password[30] = "Admin00";
@@ -255,53 +244,45 @@ void sign_in_admin(user u[], reclamation r[]) {
     }
 }
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
 
+int main() {
+    user u[200];
+    reclamation r[200];
 
+    int chose;
 
+    while (1) {
+        printf("1 - Inscription\n2 - Connexion\n3 - Connexion Administrateur\n4 - Quitter\nEntrez votre choix : ");
+        char input[20];
+        fgets(input, sizeof(input), stdin);
 
+        input[strcspn(input, "\n")] = '\0';
 
-
-
-
-
-int main(){
-user u[200];
-reclamation r[200];
-
-int chose;
-char name[30]={"admin"};
-
-char password[30]={"Admin00"};
-
-
-
-while(1){
-
-
- do{printf("1-sign-up\n2-sign-in\n3-admin sign in \n4-quite\nenter choix: ");
-
-    scanf("%d",&chose);}while(chose < 1 || chose > 4);
-
-    switch(chose){
-
-    case 1:sign_up_user(u);
-break;
-    case 2: sign_in_user(u,r);
-
-
-break;
- case 3: sign_in_admin(u,r);
-
-
-break;
-case 4: return 0;
-default :   break;
-
+        if (sscanf(input, "%d", &chose) == 1 && chose >= 1 && chose <= 4) {
+            switch (chose) {
+                case 1:
+                    sign_up_user(u);
+                    break;
+                case 2:
+                    sign_in_user(u, r);
+                    break;
+                case 3:
+                    sign_in_admin(u, r);
+                    break;
+                case 4:
+                    return 0;
+                default:
+                    printf("Choix invalide.\n");
+                    break;
+            }
+        } else {
+            printf("Choix invalide. reessayez.\n");
+        }
     }
-
-}
-
-
 
     return 0;
 }
+
