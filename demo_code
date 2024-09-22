@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <ctype.h>
 #include <unistd.h>
 
 #define MAX_USERS 200
@@ -21,115 +22,171 @@ typedef struct {
     char status[30];
     char priority[30];
     char client[40];
+    time_t date;
+    char internal_notes[250];
     int user_index;
 } reclamation;
 
 int user_count = 0;
 int reclamation_count = 0;
-char basse[5][20] = {"bugs", "glitch", "slow", "minor", "fix"};
-    char moyenne[5][20] = {"feature", "improvement", "question", "update", "request"};
-    char haute[5][20] = {"crash", "urgent", "data loss", "security", "downtime"};
+
+int generate_id(reclamation r[]) {
+    int id;
+    int exists;
+    do {
+        exists = 0;
+        id = rand() % 10000;
+        for (int i = 0; i < reclamation_count; i++) {
+            if (r[i].id == id) {
+                exists = 1;
+                break;
+            }
+        }
+    } while (exists);
+    return id;
+}
 
 void enter_rec(reclamation r[], user u[], int user_index) {
-    int pp1 = 0, pp2 = 0, pp3 = 0;
-
     if (reclamation_count >= MAX_RECLAMATIONS) {
         printf("Limite de reclamation atteinte.\n");
         return;
     }
 
     r[reclamation_count].user_index = user_index;
-    printf("Bonjour, quel est le motif de votre reclamation : ");
+    r[reclamation_count].id = generate_id(r);
+    r[reclamation_count].date = time(NULL);
+    printf("Motif de la reclamation : ");
     scanf(" %[^\n]", r[reclamation_count].motif);
-    printf("Entrez une description : ");
+    printf("Description : ");
     scanf(" %[^\n]", r[reclamation_count].description);
-    printf("Dans quelle categorie se trouve votre probleme : ");
+    printf("Categorie : ");
     scanf(" %[^\n]", r[reclamation_count].categorie);
 
-    for (int i = 0; i < 5; i++) {
-        if (strstr(r[reclamation_count].description, basse[i]) != NULL) {
-            pp1 = 1;
-        }
-        if (strstr(r[reclamation_count].description, moyenne[i]) != NULL) {
-            pp2 = 1;
-        }
-        if (strstr(r[reclamation_count].description, haute[i]) != NULL) {
-            pp3 = 1;
-        }
-    }
-
-    if (pp3) {
+    if (strstr(r[reclamation_count].description, "urgent") || strstr(r[reclamation_count].description, "crash")) {
         strcpy(r[reclamation_count].priority, "Haute");
-    } else if (pp2) {
+    } else if (strstr(r[reclamation_count].description, "feature") || strstr(r[reclamation_count].description, "improvement")) {
         strcpy(r[reclamation_count].priority, "Moyenne");
-    } else if (pp1) {
-        strcpy(r[reclamation_count].priority, "Basse");
     } else {
-        strcpy(r[reclamation_count].priority, "Non specifiee");
+        strcpy(r[reclamation_count].priority, "Basse");
     }
 
-    srand(time(0));
-    r[reclamation_count].id = rand() % 1000;
-
-    printf("Votre reclamation a ete enregistree avec ID: %d\n", r[reclamation_count].id);
-    printf("Priorite attribuee: %s\n", r[reclamation_count].priority);
-
+    strcpy(r[reclamation_count].status, "En attente");
+    r[reclamation_count].internal_notes[0] = '\0';
+    printf("Reclamation enregistree avec ID: %d\n", r[reclamation_count].id);
     reclamation_count++;
 }
 
-
-void display_reclamations(reclamation r[], user u[]) {
+void display_reclamations(reclamation r[], user u[], char role[]) {
     if (reclamation_count == 0) {
         printf("Aucune reclamation a afficher.\n");
         return;
     }
 
     for (int i = 0; i < reclamation_count; i++) {
-        printf("ID : %d\n", r[i].id);
-        printf("Client : %s\n", u[r[i].user_index].name);
-        printf("Motif : %s\n", r[i].motif);
-        printf("Description : %s\n", r[i].description);
-        printf("Categorie : %s\n", r[i].categorie);
-        printf("Priorite : %s\n", r[i].priority);
-        printf("\n");
+        printf("ID : %d\nClient : %s\nDate : %sMotif : %s\nDescription : %s\nCategorie : %s\nStatut : %s\nPriorite : %s\nNotes internes : %s\n\n",
+               r[i].id, u[r[i].user_index].name, ctime(&r[i].date), r[i].motif, r[i].description, r[i].categorie, r[i].status, r[i].priority, r[i].internal_notes);
     }
 }
 
-void search_by_client(reclamation r[], user u[], char client_name[30]) {
-    int found = 0;
-    for (int i = 0; i < reclamation_count; i++) {
-        if (strcmp(u[r[i].user_index].name, client_name) == 0) {
-            printf("Reclamation trouvee : ID %d, Motif: %s\n", r[i].id, r[i].motif);
-            found = 1;
-        }
+void modify_reclamation(reclamation r[], int index) {
+    printf("Modifier le motif (actuel : %s) : ", r[index].motif);
+    scanf(" %[^\n]", r[index].motif);
+    printf("Modifier la description (actuelle : %s) : ", r[index].description);
+    scanf(" %[^\n]", r[index].description);
+    printf("Modifier la categorie (actuelle : %s) : ", r[index].categorie);
+    scanf(" %[^\n]", r[index].categorie);
+
+    if (strstr(r[index].description, "urgent") || strstr(r[index].description, "crash")) {
+        strcpy(r[index].priority, "Haute");
+    } else if (strstr(r[index].description, "feature") || strstr(r[index].description, "improvement")) {
+        strcpy(r[index].priority, "Moyenne");
+    } else {
+        strcpy(r[index].priority, "Basse");
     }
-    if (!found) {
-        printf("Aucune reclamation trouvee pour le client %s.\n", client_name);
-    }
+
+    printf("Reclamation modifiee avec succes.\n");
 }
 
+void delete_reclamation(reclamation r[], int index) {
+    for (int i = index; i < reclamation_count - 1; i++) {
+        r[i] = r[i + 1];
+    }
+    reclamation_count--;
+    printf("Reclamation supprimee avec succes.\n");
+}
+
+void assign_agent_role(user u[], int index) {
+    strcpy(u[index].role, "agent");
+    printf("%s a ete promu agent de reclamation.\n", u[index].name);
+}
 
 void sign_up_user(user u[]) {
-    if (user_count >= MAX_USERS) {
-        printf("Limite d'inscription atteinte.\n");
-        return;
+    int valide = 0;
+    int att = 0;
+
+    printf("Bonjour !\n");
+
+    while (!valide) {
+        printf("Entrez votre nom : ");
+        scanf(" %[^\n]", u[user_count].name);
+        if (strlen(u[user_count].name) < 3) {
+            printf("Le nom doit comporter au moins 3 caracteres.\n");
+            continue;
+        }
+        valide = 1;
+        for (int i = 0; i < strlen(u[user_count].name); i++) {
+            if (isdigit(u[user_count].name[i])) {
+                valide = 0;
+                printf("Entrez un nom valide (pas de chiffres autorises).\n");
+                break;
+            }
+        }
     }
-    printf("Entrez votre nom d'utilisateur : ");
-    scanf(" %[^\n]", u[user_count].name);
-    printf("Entrez votre mot de passe : ");
-    scanf(" %[^\n]", u[user_count].mot_pass);
+
+    valide = 0;
+
+    while (!valide && att < 3) {
+        printf("Entrez votre mot de passe : ");
+        scanf(" %[^\n]", u[user_count].mot_pass);
+
+        int longer = strlen(u[user_count].mot_pass);
+        int name_used = (strstr(u[user_count].mot_pass, u[user_count].name) != NULL);
+        int digi = 0, alpha = 0, up = 0, low = 0, spc = 0;
+
+        for (int i = 0; i < longer; i++) {
+            if (isdigit(u[user_count].mot_pass[i])) digi = 1;
+            if (isalpha(u[user_count].mot_pass[i])) alpha = 1;
+            if (islower(u[user_count].mot_pass[i])) low = 1;
+            if (isupper(u[user_count].mot_pass[i])) up = 1;
+            if (strchr("!@#$%^&*.,", u[user_count].mot_pass[i])) spc = 1;
+        }
+
+        if (digi && alpha && spc && up && low && longer >= 8 && !name_used) {
+            valide = 1;
+        } else {
+            printf("Entrez un mot de passe valide.\n");
+            att++;
+            if (att > 2) {
+                printf("Vous avez atteint le nombre maximal d'essais. Attendez 10 secondes avant d'essayer a nouveau.\n");
+                sleep(10);
+                return;
+            }
+        }
+    }
+
     strcpy(u[user_count].role, "client");
+    printf("Inscription reussie. Votre nom d'utilisateur est %s et votre mot de passe est %s.\n", u[user_count].name, u[user_count].mot_pass);
     user_count++;
-    printf("Inscription reussie!\n");
 }
 
 void sign_in_user(user u[], reclamation r[]) {
-    char name[30], pass[30];
+    char name[30];
+    char pass[30];
     int exist = 0;
     int attempts = 0;
 
     if (user_count == 0) {
-        printf("Enregistrez-vous d'abord.\n");
+        printf("Veuillez vous inscrire d'abord.\n");
         return;
     }
 
@@ -141,159 +198,233 @@ void sign_in_user(user u[], reclamation r[]) {
 
         for (int i = 0; i < user_count; i++) {
             if (strcmp(u[i].name, name) == 0 && strcmp(u[i].mot_pass, pass) == 0) {
+                printf("Comment puis-je vous aider aujourd'hui ?\n");
                 exist = 1;
-                printf("Bienvenue %s ! Comment puis-je vous aider aujourd'hui ?\n", u[i].name);
-                int choice;
-                while (1) {
-                    printf("1 - Ajouter une reclamation\n2 - Afficher vos reclamations\n3 - Quitter\n");
-                    scanf("%d", &choice);
-                    switch (choice) {
-                        case 1:
-                            enter_rec(r, u, i); // Pass user index
-                            break;
-                        case 2:
-                            search_by_client(r, u, u[i].name);
-                            break;
-                        case 3:
-                            return;
-                        default:
-                            printf("Choix invalide. Essayez encore.\n");
-                    }
-                }
+                enter_rec(r, u, i);
                 break;
             }
+            if (strcmp(u[i].name, name) == 0 && strcmp(u[i].mot_pass, pass) != 0) {
+                printf("Mot de passe incorrect.\n");
+                attempts++;
+            }
         }
-        attempts++;
         if (attempts == 3) {
+            printf("Vous avez atteint le nombre maximal d'essais.\n");
             sleep(10);
             return;
         }
     }
 
     if (!exist) {
-        printf("Connexion echouee.\n");
+        printf("Nom d'utilisateur non trouve.\n");
     }
 }
 
 void sign_in_admin(user u[], reclamation r[]) {
-    char admin_name[30] = "admin";
-    char admin_password[30] = "admin";
     char name[30], pass[30];
     int attempts = 0;
 
     while (attempts < 3) {
-        printf("Entrez votre nom d'administrateur : ");
+        printf("Nom d'administrateur : ");
         scanf(" %[^\n]", name);
-        printf("Entrez votre mot de passe : ");
+        printf("Mot de passe : ");
         scanf(" %[^\n]", pass);
 
-        if (strcmp(name, admin_name) == 0 && strcmp(pass, admin_password) == 0) {
+        if (strcmp(u[0].name, name) == 0 && strcmp(u[0].mot_pass, pass) == 0) {
             printf("Bonjour, Administrateur !\n");
             int choice;
             while (1) {
-                printf("1 - Afficher toutes les reclamations\n2 - Ajouter une reclamation\n3 - Rechercher par nom\n4 - Quitter\n");
+                printf("1 - Afficher toutes les reclamations\n2 - Modifier une reclamation\n3 - Supprimer une reclamation\n4 - Rechercher par ID\n5 - Rechercher par nom\n6 - Rechercher par statut\n7 - Assigner un agent\n8 - Quitter\n");
                 scanf("%d", &choice);
-
-                switch (choice) {
-                    case 1:
-                        display_reclamations(r, u);
-                        break;
-                    case 2:
-                        enter_rec(r, u, -1);
-                        break;
-                    case 3: {
-                        char client_name[30];
-                        printf("Entrez le nom du client : ");
-                        scanf(" %[^\n]", client_name);
-                        search_by_client(r, u, client_name);
-                        break;
+                if (choice == 1) {
+                    display_reclamations(r, u, "admin");
+                } else if (choice == 2) {
+                    int id;
+                    printf("Entrez l'ID de la reclamation : ");
+                    scanf("%d", &id);
+                    for (int j = 0; j < reclamation_count; j++) {
+                        if (r[j].id == id) {
+                            modify_reclamation(r, j);
+                            break;
+                        }
                     }
-                    case 4:
-                        return;
-                    default:
-                        printf("Choix invalide.\n");
+                } else if (choice == 3) {
+                    int id;
+                    printf("Entrez l'ID de la reclamation : ");
+                    scanf("%d", &id);
+                    for (int j = 0; j < reclamation_count; j++) {
+                        if (r[j].id == id) {
+                            delete_reclamation(r, j);
+                            break;
+                        }
+                    }
+                } else if (choice == 4) {
+                    int id;
+                    printf("Entrez l'ID de la reclamation : ");
+                    scanf("%d", &id);
+                    for (int j = 0; j < reclamation_count; j++) {
+                        if (r[j].id == id) {
+                            printf("Reclamation trouvee : ID %d, Motif: %s, Description: %s, Statut: %s\n",
+                                   r[j].id, r[j].motif, r[j].description, r[j].status);
+                            break;
+                        }
+                    }
+                } else if (choice == 5) {
+                    char client_name[30];
+                    printf("Entrez le nom du client : ");
+                    scanf(" %[^\n]", client_name);
+                    for (int j = 0; j < reclamation_count; j++) {
+                        if (strcmp(u[r[j].user_index].name, client_name) == 0) {
+                            printf("Reclamation trouvee : ID %d, Motif: %s, Description: %s, Statut: %s\n",
+                                   r[j].id, r[j].motif, r[j].description, r[j].status);
+                        }
+                    }
+                } else if (choice == 6) {
+                    char status[30];
+                    printf("Entrez le statut (en attente, en cours, resolue, fermee) : ");
+                    scanf(" %[^\n]", status);
+                    for (int j = 0; j < reclamation_count; j++) {
+                        if (strcmp(r[j].status, status) == 0) {
+                            printf("Reclamation trouvee : ID %d, Motif: %s, Description: %s, Statut: %s\n",
+                                   r[j].id, r[j].motif, r[j].description, r[j].status);
+                        }
+                    }
+                } else if (choice == 7) {
+                    char client_name[30];
+                    printf("Entrez le nom du client : ");
+                    scanf(" %[^\n]", client_name);
+                    for (int j = 0; j < user_count; j++) {
+                        if (strcmp(u[j].name, client_name) == 0) {
+                            assign_agent_role(u, j);
+                            break;
+                        }
+                    }
+                } else if (choice == 8) {
+                    return;
+                } else {
+                    printf("Choix invalide.\n");
                 }
             }
         } else {
-            printf("Identifiants incorrects. Reessayez.\n");
             attempts++;
-            if (attempts == 3) {
-                printf("Trop de tentatives echouees. Attendez 10 secondes avant de reessayer.\n");
-                sleep(10);
-            }
         }
     }
+    printf("Identifiants incorrects.\n");
 }
 
-void sign_in_manager(user u[], reclamation r[]) {
-    char manager_name[30] = "manager";
-    char manager_password[30] = "manager";
+void mark_reclamation(reclamation *rec) {
+    char status[30];
+    printf("Marquer la reclamation comme (en cours, resolue, fermee) : ");
+    scanf(" %[^\n]", status);
+    strcpy(rec->status, status);
+
+    char notes[250];
+    printf("Ajouter des notes internes : ");
+    scanf(" %[^\n]", notes);
+    strcpy(rec->internal_notes, notes);
+
+    printf("Reclamation marquee avec succes.\n");
+}
+
+void sign_in_agent(user u[], reclamation r[]) {
     char name[30], pass[30];
     int attempts = 0;
 
     while (attempts < 3) {
-        printf("Entrez votre nom de manager : ");
+        printf("Nom d'agent : ");
         scanf(" %[^\n]", name);
-        printf("Entrez votre mot de passe : ");
+        printf("Mot de passe : ");
         scanf(" %[^\n]", pass);
 
-        if (strcmp(name, manager_name) == 0 && strcmp(pass, manager_password) == 0) {
-            printf("Bonjour, Manager !\n");
-            int choice;
-            while (1) {
-                printf("1 - Afficher toutes les reclamations\n2 - Quitter\n");
-                scanf("%d", &choice);
-
-                switch (choice) {
-                    case 1:
-                        display_reclamations(r, u);
-                        break;
-                    case 2:
+        for (int i = 0; i < user_count; i++) {
+            if (strcmp(u[i].name, name) == 0 && strcmp(u[i].mot_pass, pass) == 0 && strcmp(u[i].role, "agent") == 0) {
+                printf("Bonjour, Agent de Reclamation !\n");
+                int choice;
+                while (1) {
+                    printf("1 - Afficher toutes les reclamations\n2 - Modifier une reclamation\n3 - Supprimer une reclamation\n4 - Rechercher par ID\n5 - Marquer la reclamation\n6 - Quitter\n");
+                    scanf("%d", &choice);
+                    if (choice == 1) {
+                        display_reclamations(r, u, "agent");
+                    } else if (choice == 2) {
+                        int id;
+                        printf("Entrez l'ID de la reclamation : ");
+                        scanf("%d", &id);
+                        for (int j = 0; j < reclamation_count; j++) {
+                            if (r[j].id == id) {
+                                modify_reclamation(r, j);
+                                break;
+                            }
+                        }
+                    } else if (choice == 3) {
+                        int id;
+                        printf("Entrez l'ID de la reclamation : ");
+                        scanf("%d", &id);
+                        for (int j = 0; j < reclamation_count; j++) {
+                            if (r[j].id == id) {
+                                delete_reclamation(r, j);
+                                break;
+                            }
+                        }
+                    } else if (choice == 4) {
+                        int id;
+                        printf("Entrez l'ID de la reclamation : ");
+                        scanf("%d", &id);
+                        for (int j = 0; j < reclamation_count; j++) {
+                            if (r[j].id == id) {
+                                printf("Reclamation trouvee : ID %d, Motif: %s, Description: %s, Statut: %s\n",
+                                       r[j].id, r[j].motif, r[j].description, r[j].status);
+                                break;
+                            }
+                        }
+                    } else if (choice == 5) {
+                        int id;
+                        printf("Entrez l'ID de la reclamation : ");
+                        scanf("%d", &id);
+                        for (int j = 0; j < reclamation_count; j++) {
+                            if (r[j].id == id) {
+                                mark_reclamation(&r[j]);
+                                break;
+                            }
+                        }
+                    } else if (choice == 6) {
                         return;
-                    default:
+                    } else {
                         printf("Choix invalide.\n");
+                    }
                 }
             }
-        } else {
-            printf("Identifiants incorrects. Reessayez.\n");
-            attempts++;
-            if (attempts == 3) {
-                printf("Trop de tentatives echouees. Attendez 10 secondes avant de reessayer.\n");
-                sleep(10);
-            }
         }
+        attempts++;
     }
+    printf("Identifiants incorrects.\n");
 }
 
 int main() {
     user u[MAX_USERS];
     reclamation r[MAX_RECLAMATIONS];
-
     srand(time(0));
 
-    int choice;
+    strcpy(u[user_count].name, "admin");
+    strcpy(u[user_count].mot_pass, "admin");
+    strcpy(u[user_count].role, "admin");
+    user_count++;
 
     while (1) {
-        printf("1 - Inscription\n2 - Connexion Client\n3 - Connexion Administrateur\n4 - Connexion Manager\n5 - Quitter\nEntrez votre choix : ");
+        int choice;
+        printf("1 - Inscription\n2 - Connexion Client\n3 - Connexion Administrateur\n4 - Connexion Agent de Reclamation\n5 - Quitter\nEntrez votre choix : ");
         scanf("%d", &choice);
-        switch (choice) {
-            case 1:
-                sign_up_user(u);
-                break;
-            case 2:
-                sign_in_user(u, r);
-                break;
-            case 3:
-                sign_in_admin(u, r);
-                break;
-            case 4:
-                sign_in_manager(u, r);
-                break;
-            case 5:
-                return 0;
-            default:
-                printf("Choix invalide.\n");
-                break;
+        if (choice == 1) {
+            sign_up_user(u);
+        } else if (choice == 2) {
+            sign_in_user(u, r);
+        } else if (choice == 3) {
+            sign_in_admin(u, r);
+        } else if (choice == 4) {
+            sign_in_agent(u, r);
+        } else if (choice == 5) {
+            return 0;
+        } else {
+            printf("Choix invalide.\n");
         }
     }
 
