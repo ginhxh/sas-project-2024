@@ -35,7 +35,7 @@ int generate_id(reclamation r[]) {
     int exists;
     do {
         exists = 0;
-        id = rand() % 10000;
+        id = rand() % 200;
         for (int i = 0; i < reclamation_count; i++) {
             if (r[i].id == id) {
                 exists = 1;
