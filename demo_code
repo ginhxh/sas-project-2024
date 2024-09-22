@@ -269,7 +269,7 @@ void sign_in_admin(user u[], reclamation r[]) {
             printf("Bonjour, Administrateur !\n");
             int choice;
             while (1) {
-                printf("1 - Afficher toutes les reclamations\n2 - Modifier une reclamation\n3 - Supprimer une reclamation\n4 - Rechercher par ID\n5 - Rechercher par nom\n6 - Rechercher par statut\n7 - Assigner un agent\n8 - Quitter\n");
+                printf("1 - Afficher toutes les reclamations\n2 - Modifier une reclamation\n3 - Supprimer une reclamation\n4 - Rechercher par ID\n5 - Rechercher par nom\n6 - Rechercher par statut\n7 - Assigner un agent\n8 - Marquer la reclamation\n9 - Quitter\n");
                 scanf("%d", &choice);
                 if (choice == 1) {
                     display_reclamations(r, u, "admin");
@@ -315,16 +315,24 @@ void sign_in_admin(user u[], reclamation r[]) {
                         }
                     }
                 } else if (choice == 6) {
-                    char status[30];
-                    printf("Entrez le statut (en attente, en cours, resolue, fermee) : ");
-                    scanf(" %[^\n]", status);
-                    for (int j = 0; j < reclamation_count; j++) {
-                        if (strcmp(r[j].status, status) == 0) {
-                            printf("Reclamation trouvee : ID %d, Motif: %s, Description: %s, Statut: %s\n",
-                                   r[j].id, r[j].motif, r[j].description, r[j].status);
-                        }
-                    }
-                } else if (choice == 7) {
+    char status[30];
+    printf("Entrez le statut (en attente, en cours, resolue, fermee) : ");
+    scanf(" %[^\n]", status);
+    int found = 0;  // Variable pour vérifier si des réclamations ont été trouvées
+
+    for (int j = 0; j < reclamation_count; j++) {
+        if (strcmp(r[j].status, status) == 0) {
+            printf("Reclamation trouvee : ID %d, Motif: %s, Description: %s, Statut: %s\n",
+                   r[j].id, r[j].motif, r[j].description, r[j].status);
+            found = 1;  // Indiquer qu'une réclamation a été trouvée
+        }
+    }
+
+    if (!found) {
+        printf("Aucune reclamation trouvee avec le statut \"%s\".\n", status);
+    }
+}
+ else if (choice == 7) {
                     char client_name[30];
                     printf("Entrez le nom du client : ");
                     scanf(" %[^\n]", client_name);
@@ -334,7 +342,22 @@ void sign_in_admin(user u[], reclamation r[]) {
                             break;
                         }
                     }
-                } else if (choice == 8) {
+                }else if (choice == 8) {
+                        char status[30];
+                        printf("Entrez le statut (en attente, en cours, resolue, fermee) : ");
+                        scanf(" %[^\n]", status);
+                        int found = 0;  // Variable pour vérifier si des réclamations ont été trouvées
+                        for (int j = 0; j < reclamation_count; j++) {
+                            if (strcmp(r[j].status, status) == 0) {
+                                printf("Reclamation trouvee : ID %d, Motif: %s, Description: %s, Statut: %s\n",
+                                       r[j].id, r[j].motif, r[j].description, r[j].status);
+                                found = 1;
+                            }
+                        }
+                        if (!found) {
+                            printf("Aucune reclamation trouvee avec le statut \"%s\".\n", status);
+                        }
+                    } else if (choice == 9) {
                     return;
                 } else {
                     printf("Choix invalide.\n");
@@ -376,7 +399,7 @@ void sign_in_agent(user u[], reclamation r[]) {
                 printf("Bonjour, Agent de Reclamation !\n");
                 int choice;
                 while (1) {
-                    printf("1 - Afficher toutes les reclamations\n2 - Modifier une reclamation\n3 - Supprimer une reclamation\n4 - Rechercher par ID\n5 - Marquer la reclamation\n6 - Quitter\n");
+                    printf("1 - Afficher toutes les reclamations\n2 - Modifier une reclamation\n3 - Supprimer une reclamation\n4 - Rechercher par ID\n5 - Marquer la reclamation\n6 - Rechercher par nom du client\n7 - Rechercher par statut\n8 - Quitter\n");
                     scanf("%d", &choice);
                     if (choice == 1) {
                         display_reclamations(r, u, "agent");
@@ -422,6 +445,36 @@ void sign_in_agent(user u[], reclamation r[]) {
                             }
                         }
                     } else if (choice == 6) {
+                        char client_name[30];
+                        printf("Entrez le nom du client : ");
+                        scanf(" %[^\n]", client_name);
+                        int found = 0;  // Variable pour vérifier si des réclamations ont été trouvées
+                        for (int j = 0; j < reclamation_count; j++) {
+                            if (strcmp(u[r[j].user_index].name, client_name) == 0) {
+                                printf("Reclamation trouvee : ID %d, Motif: %s, Description: %s, Statut: %s\n",
+                                       r[j].id, r[j].motif, r[j].description, r[j].status);
+                                found = 1;
+                            }
+                        }
+                        if (!found) {
+                            printf("Aucune reclamation trouvee pour le client \"%s\".\n", client_name);
+                        }
+                    } else if (choice == 7) {
+                        char status[30];
+                        printf("Entrez le statut (en attente, en cours, resolue, fermee) : ");
+                        scanf(" %[^\n]", status);
+                        int found = 0;  // Variable pour vérifier si des réclamations ont été trouvées
+                        for (int j = 0; j < reclamation_count; j++) {
+                            if (strcmp(r[j].status, status) == 0) {
+                                printf("Reclamation trouvee : ID %d, Motif: %s, Description: %s, Statut: %s\n",
+                                       r[j].id, r[j].motif, r[j].description, r[j].status);
+                                found = 1;
+                            }
+                        }
+                        if (!found) {
+                            printf("Aucune reclamation trouvee avec le statut \"%s\".\n", status);
+                        }
+                    } else if (choice == 8) {
                         return;
                     } else {
                         printf("Choix invalide.\n");
