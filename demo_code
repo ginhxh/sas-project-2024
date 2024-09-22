@@ -198,26 +198,60 @@ void sign_in_user(user u[], reclamation r[]) {
 
         for (int i = 0; i < user_count; i++) {
             if (strcmp(u[i].name, name) == 0 && strcmp(u[i].mot_pass, pass) == 0) {
-                printf("Comment puis-je vous aider aujourd'hui ?\n");
+                printf("Bonjour, %s !\n", u[i].name);
                 exist = 1;
+                int choice;
+                while (1) {
+                    printf("1 - Afficher toutes les reclamations\n2 - Modifier une reclamation\n3 - Supprimer une reclamation\n4 - add afichag\n5 -Quitter\n");
+                    scanf("%d", &choice);
+                    if (choice == 1) {
+                        display_reclamations(r, u, u[i].role);
+                    } else if (choice == 2) {
+                        int id;
+                        printf("Entrez l'ID de la reclamation : ");
+                        scanf("%d", &id);
+                        for (int j = 0; j < reclamation_count; j++) {
+                            if (r[j].id == id && r[j].user_index == i) {
+                                modify_reclamation(r, j);
+                                break;
+                            } else {
+                                printf("Reclamation non trouvee ou vous n'avez pas l'autorisation de la modifier.\n");
+                            }
+                        }
+                    } else if (choice == 3) {
+                        int id;
+                        printf("Entrez l'ID de la reclamation : ");
+                        scanf("%d", &id);
+                        for (int j = 0; j < reclamation_count; j++) {
+                            if (r[j].id == id && r[j].user_index == i) {
+                                delete_reclamation(r, j);
+                                break;
+                            } else {
+                                printf("Reclamation non trouvee ou vous n'avez pas l'autorisation de la supprimer.\n");
+                            }
+                        }
+                    }else if (choice == 4){
+                        printf("Comment puis-je vous aider aujourd'hui ?\n");
+                          enter_rec(r, u, i);
 
-                enter_rec(r, u, i);
-                break;
-            }
-            if (strcmp(u[i].name, name) == 0 && strcmp(u[i].mot_pass, pass) != 0) {
-                printf("Mot de passe incorrect.\n");
-                attempts++;
+                }  else if (choice == 5) {
+                        printf("Déconnexion...\n");
+                        return;
+                    } else {
+                        printf("Choix invalide. Réessayez.\n");
+                    }
+                }
             }
         }
-        if (attempts == 3) {
-            printf("Vous avez atteint le nombre maximal d'essais.\n");
-            sleep(10);
-            return;
-        }
-    }
 
-    if (!exist) {
-        printf("Nom d'utilisateur non trouve.\n");
+        if (!exist) {
+            printf("Nom d'utilisateur ou mot de passe incorrect. Réessayez.\n");
+            attempts++;
+            if (attempts >= 3) {
+                printf("Vous avez atteint le nombre maximal d'essais. Veuillez attendre 10 secondes.\n");
+                sleep(10);
+            }
+        }
     }
 }
 
