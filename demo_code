@@ -200,6 +200,7 @@ void sign_in_user(user u[], reclamation r[]) {
             if (strcmp(u[i].name, name) == 0 && strcmp(u[i].mot_pass, pass) == 0) {
                 printf("Comment puis-je vous aider aujourd'hui ?\n");
                 exist = 1;
+
                 enter_rec(r, u, i);
                 break;
             }
