@@ -114,6 +114,7 @@ void display_reclamations(reclamation r[], user u[], char role[]) {
     }
 }
 
+
 void modify_reclamation(reclamation r[], int index) {
     time_t current_time = time(NULL);
     double seconds = difftime(current_time, r[index].date);
@@ -183,7 +184,18 @@ void sign_up_user(user u[]) {
     while (!valide) {
         printf("Entrez votre nom : ");
         scanf(" %[^\n]", u[user_count].name);
-        if (strlen(u[user_count].name) < 3) {
+ int ext=0;
+ for (int i=0;i<user_count;i++){
+        if(strcasecmp(u[user_count].name,u[i].name)==0)
+         {
+             ext=1;
+       break;
+         }
+
+       }if(ext==1){printf("deja utilise\n");att++;
+       if(att==3){printf("try after 10s\n");sleep(10);}
+       continue;}
+    if(ext==1){ if (strlen(u[user_count].name) < 3) {
             printf("Le nom doit comporter au moins 3 caracteres.\n");
             continue;
         }
@@ -230,7 +242,8 @@ int name_used = (strstr(u[user_count].mot_pass, u[user_count].name) != NULL);
 
     strcpy(u[user_count].role, "client");
     printf("Inscription reussie. Votre nom d'utilisateur est %s et votre mot de passe est %s.\n", u[user_count].name, u[user_count].mot_pass);
-    user_count++;
+    user_count++;}
+
 }
 
 void sign_in_user(user u[], reclamation r[]) {
@@ -264,14 +277,16 @@ void sign_in_user(user u[], reclamation r[]) {
                     scanf("%d", &choice);
 
                    switch (choice) {
-    case 1: {
-        printf("Vos réclamations :\n");
+    case 1: { int found = 0;
         for (int j = 0; j < reclamation_count; j++) {
-            if (r[j].user_index == i) {
-                printf("ID : %d, Motif : %s, Description : %s, Statut : %s\n",
+            if (r[j].user_index == i) { found=1;       printf(" reclamation:");
+
+                printf("ID : %d\n Motif : %s\n Description : %s\n Statut : %s\n",
                        r[j].id, r[j].motif, r[j].description, r[j].status);
             }
-        }
+
+
+        } if(!  found  )       printf("you have 0 reclamations \n");
         break;
     }
     case 2: {
@@ -374,6 +389,7 @@ void sign_in_admin(user u[], reclamation r[]) {
                     case 1:
                         display_reclamations(r, u, "admin");
                         break;
+
                     case 2: {
                         int id;
                         printf("Entrez l'ID de la reclamation : ");
@@ -468,6 +484,7 @@ void sign_in_admin(user u[], reclamation r[]) {
                         enter_rec(r, u,0 );
                         break;
                     }
+
                     case 10:
                         return;
                     default:
