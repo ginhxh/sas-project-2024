@@ -18,9 +18,9 @@ typedef struct {
     int id;
     char motif[40];
     char description[250];
+    int priority;
     char categorie[30];
     char status[30];
-    char priority[30];
     char client[40];
     time_t date;
     char internal_notes[250];
@@ -80,8 +80,8 @@ void enter_rec(reclamation r[], user u[], int user_index) {
         }
     }
 
-    if (isHaute) {
-        strcpy(r[reclamation_count].priority, "Haute");
+     if (isHaute) {
+        r[reclamation_count].priority = 2;
     } else {
         for (int i = 0; i < 10; i++) {
             if (strstr(r[reclamation_count].description, moyenne[i]) != NULL) {
@@ -90,9 +90,9 @@ void enter_rec(reclamation r[], user u[], int user_index) {
             }
         }
         if (isMoyenne) {
-            strcpy(r[reclamation_count].priority, "Moyenne");
+            r[reclamation_count].priority = 1;
         } else {
-            strcpy(r[reclamation_count].priority, "Basse");
+            r[reclamation_count].priority = 0;
         }
     }
 
@@ -107,13 +107,23 @@ void display_reclamations(reclamation r[], user u[], char role[]) {
         printf("Aucune reclamation a afficher.\n");
         return;
     }
+    reclamation rec;
+    for(int i = 0; i < reclamation_count; i++){
+        for(int j = i+1; j < reclamation_count; j++){
+            if(r[i].priority < r[j].priority){
+                rec = r[i];
+                r[i] = r[j];
+                r[j] = rec;
+            }
+        }
+    }
 
     for (int i = 0; i < reclamation_count; i++) {
-        printf("ID : %d\nClient : %s\nid client : %d\nDate : %sMotif : %s\nDescription : %s\nCategorie : %s\nStatut : %s\nPriorite : %s\nNotes internes : %s\n\n",
+        printf("ID : %d\nClient : %s\nid client : %d\nDate : %sMotif : %s\nDescription : %s\nCategorie : %s\nStatut : %s\nPriorite : %d\nNotes internes : %s\n\n",
                r[i].id, u[r[i].user_index].name, r[i].user_index, ctime(&r[i].date), r[i].motif, r[i].description, r[i].categorie, r[i].status, r[i].priority, r[i].internal_notes);
+
     }
 }
-
 
 void modify_reclamation(reclamation r[], int index) {
     time_t current_time = time(NULL);
@@ -136,7 +146,7 @@ void modify_reclamation(reclamation r[], int index) {
     }
 
     if (isHaute) {
-        strcpy(r[reclamation_count].priority, "Haute");
+        r[reclamation_count].priority = 2;
     } else {
         for (int i = 0; i < 10; i++) {
             if (strstr(r[reclamation_count].description, moyenne[i]) != NULL) {
@@ -145,9 +155,9 @@ void modify_reclamation(reclamation r[], int index) {
             }
         }
         if (isMoyenne) {
-            strcpy(r[reclamation_count].priority, "Moyenne");
+            r[reclamation_count].priority = 1;
         } else {
-            strcpy(r[reclamation_count].priority, "Basse");
+            r[reclamation_count].priority = 0;
         }
     }
 
@@ -389,7 +399,6 @@ void sign_in_admin(user u[], reclamation r[]) {
                     case 1:
                         display_reclamations(r, u, "admin");
                         break;
-
                     case 2: {
                         int id;
                         printf("Entrez l'ID de la reclamation : ");
@@ -484,7 +493,6 @@ void sign_in_admin(user u[], reclamation r[]) {
                         enter_rec(r, u,0 );
                         break;
                     }
-
                     case 10:
                         return;
                     default:
