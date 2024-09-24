@@ -703,18 +703,18 @@ int main() {
     user_count++;
 
     while (1) {
-        int choice;
-        printf("1 - Inscription\n2 - Connexion Client\n3 - Connexion Administrateur\n4 - Connexion Agent de Reclamation\n5 - Quitter\nEntrez votre choix : ");
-        scanf("%d",&choice);
-        if (choice == 1) {
+        char choice;
+        printf("a - Inscription\nb - Connexion Client\nc - Connexion Administrateur\nd - Connexion Agent de Reclamation\ne - Quitter\nEntrez votre choix : ");
+        scanf(" %[^\n]",&choice);
+        if (choice == 'a') {
             sign_up_user(u);
-        } else if (choice == 2) {
+        } else if (choice == 'b') {
             sign_in_user(u, r);
-        } else if (choice == 3) {
+        } else if (choice == 'c') {
             sign_in_admin(u, r);
-        } else if (choice == 4) {
+        } else if (choice == 'd') {
             sign_in_agent(u, r);
-        } else if (choice == 5) {
+        } else if (choice == 'e') {
             return 0;
         } else {
             printf("Choix invalide.\n");
