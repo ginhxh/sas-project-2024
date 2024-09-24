@@ -33,7 +33,15 @@ char haute[10][20] = {"urgent", "crash", "probleme", "situation critique", "erre
 
 char moyenne[10][20] = {"feature", "amelioration", "demande", "suggestion", "ajout","nouvelle fonction", "modification", "optimisation", "ameliorer", "proposition"};
 
+void ststiq(reclamation r[]){
 
+for (int i=0;i<reclamation_count;i++){
+
+printf("%d",reclamation_count);
+}
+
+
+}
 
 int generate_id(reclamation r[]) {
     int id;
@@ -391,8 +399,9 @@ void sign_in_admin(user u[], reclamation r[]) {
                        "8 - Marquer la reclamation\n"
                        "9 - Ajouter une reclamation\n"
                        "10 - Rechercher par categorie\n"
+                       "11 - Statistique\n"
 
-                       "11 - Quitter\n");
+                       "12 - Quitter\n");
 
                 scanf("%d", &choice);
 
@@ -461,6 +470,7 @@ void sign_in_admin(user u[], reclamation r[]) {
                             if (strcmp(r[j].status, status) == 0) {
                                 printf("Reclamation trouvee : ID %d, Motif: %s, Description: %s, Statut: %s\n",
                                        r[j].id, r[j].motif, r[j].description, r[j].status);
+
                                 found = 1;
                             }
                         }
@@ -509,7 +519,28 @@ void sign_in_admin(user u[], reclamation r[]) {
                         }
                         break;
                     }
-                    case 11:
+
+                    case 11:   {  float rsl=0;float T;
+
+                   for(int j=0;j<reclamation_count;j++){
+                    if(strstr(r[j].status,"resolue")!=NULL){rsl++;
+                    }
+
+                   }
+                   if(rsl==0){printf("aucun reclamation resolue\n");
+                   printf("le number total des reclamations : %d\n",reclamation_count);}
+
+
+                   if(rsl>=1) { T=(rsl/reclamation_count)*100;
+                                printf("le number total des reclamations : %d\n",reclamation_count);}
+
+               printf("le taux de resolution des reclamations : %.2f  \n",T);
+
+
+
+                    break;}
+
+                    case 12:
                         return;
                     default:
                         printf("Choix invalide.\n");
@@ -520,7 +551,9 @@ void sign_in_admin(user u[], reclamation r[]) {
             attempts++;
         }
     }
-    printf("Identifiants incorrects.\n");
+    printf("Identifiants incorrects 3 fois wait 10s.\n");
+    sleep(10);
+    return;
 }
 
 
@@ -534,6 +567,7 @@ void sign_in_agent(user u[], reclamation r[]) {
         scanf(" %[^\n]", name);
         printf("Mot de passe : ");
         scanf(" %[^\n]", pass);
+
 
         for (int i = 0; i < user_count; i++) {
             if (strcmp(u[i].name, name) == 0 && strcmp(u[i].mot_pass, pass) == 0 && strcmp(u[i].role, "agent") == 0) {
@@ -653,7 +687,9 @@ void sign_in_agent(user u[], reclamation r[]) {
         }
         attempts++;
     }
-    printf("Identifiants incorrects.\n");
+    printf("Identifiants incorrects 3 fois wait 10s.\n");
+    sleep(10);
+    return;
 }
 
 int main() {
@@ -669,7 +705,7 @@ int main() {
     while (1) {
         int choice;
         printf("1 - Inscription\n2 - Connexion Client\n3 - Connexion Administrateur\n4 - Connexion Agent de Reclamation\n5 - Quitter\nEntrez votre choix : ");
-        scanf("%d", &choice);
+        scanf("%d",&choice);
         if (choice == 1) {
             sign_up_user(u);
         } else if (choice == 2) {
