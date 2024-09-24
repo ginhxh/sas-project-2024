@@ -17,7 +17,7 @@ typedef struct {
 typedef struct {
     int id;
     char motif[30];
-    char description[250];
+    char description[250]; 
     int priority;
     char categorie[30];
     char status[30];
