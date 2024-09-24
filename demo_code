@@ -16,28 +16,23 @@ typedef struct {
 
 typedef struct {
     int id;
-    char motif[40];
+    char motif[30];
     char description[250];
     int priority;
     char categorie[30];
     char status[30];
-    char client[40];
+    char client[30];
     time_t date;
+    time_t date_markue;
     char internal_notes[250];
     int user_index;
 } reclamation;
-
 int user_count = 0;
 int reclamation_count = 0;
-char haute[10][20] = {
-        "urgent", "crash", "probleme", "situation critique", "erreur fatale",
-        "perte", "echec", "reparation immediate", "urgence", "incident"
-    };
+char haute[10][20] = {"urgent", "crash", "probleme", "situation critique", "erreur fatale","perte", "echec", "reparation immediate", "urgence", "incident"};
 
-    char moyenne[10][20] = {
-        "feature", "amelioration", "demande", "suggestion", "ajout",
-        "nouvelle fonction", "modification", "optimisation", "ameliorer", "proposition"
-    };
+char moyenne[10][20] = {"feature", "amelioration", "demande", "suggestion", "ajout","nouvelle fonction", "modification", "optimisation", "ameliorer", "proposition"};
+
 
 
 int generate_id(reclamation r[]) {
@@ -72,6 +67,12 @@ void enter_rec(reclamation r[], user u[], int user_index) {
     printf("Categorie : ");
     scanf(" %[^\n]", r[reclamation_count].categorie);
     int isHaute = 0, isMoyenne = 0;
+
+
+
+
+
+
 
   for (int i = 0; i < 10; i++) {
         if (strstr(r[reclamation_count].description, haute[i]) != NULL) {
@@ -129,7 +130,7 @@ void modify_reclamation(reclamation r[], int index) {
     time_t current_time = time(NULL);
     double seconds = difftime(current_time, r[index].date);
 
-   if (seconds < 10){ printf("Modifier le motif (actuel : %s) : ", r[index].motif);
+   if (seconds <30){ printf("Modifier le motif (actuel : %s) : ", r[index].motif);
     scanf(" %[^\n]", r[index].motif);
     printf("Modifier la description (actuelle : %s) : ", r[index].description);
     scanf(" %[^\n]", r[index].description);
@@ -291,10 +292,9 @@ void sign_in_user(user u[], reclamation r[]) {
         for (int j = 0; j < reclamation_count; j++) {
             if (r[j].user_index == i) { found=1;       printf(" reclamation:");
 
-                printf("ID : %d\n Motif : %s\n Description : %s\n Statut : %s\n",
-                       r[j].id, r[j].motif, r[j].description, r[j].status);
+                printf("ID : %d\n Motif : %s\n Description : %s\n Statut : %s\n date : %s\n",
+                       r[j].id, r[j].motif, r[j].description, r[j].status,ctime(&r[j].date));
             }
-
 
         } if(!  found  )       printf("you have 0 reclamations \n");
         break;
@@ -390,8 +390,9 @@ void sign_in_admin(user u[], reclamation r[]) {
                        "7 - Assigner un agent\n"
                        "8 - Marquer la reclamation\n"
                        "9 - Ajouter une reclamation\n"
+                       "10 - Rechercher par categorie\n"
 
-                       "10 - Quitter\n");
+                       "11 - Quitter\n");
 
                 scanf("%d", &choice);
 
@@ -448,6 +449,9 @@ void sign_in_admin(user u[], reclamation r[]) {
                         }
                         break;
                     }
+
+
+
                     case 6: {
                         char status[30];
                         printf("Entrez le statut (en attente, en cours, resolue, fermee) : ");
@@ -493,7 +497,19 @@ void sign_in_admin(user u[], reclamation r[]) {
                         enter_rec(r, u,0 );
                         break;
                     }
-                    case 10:
+                     case 10: {
+                        char CATEGORIEE[30];
+                        printf("Entrez le CATEGORIE  : ");
+                        scanf(" %[^\n]", CATEGORIEE);
+                        for (int j = 0; j < reclamation_count; j++) {
+                            if (strcmp(r[j].categorie, CATEGORIEE) == 0) {
+                                printf("Reclamation trouvee : ID %d, Motif: %s, Description: %s, Statut: %s\n",
+                                       r[j].id, r[j].motif, r[j].description, r[j].status);
+                            }
+                        }
+                        break;
+                    }
+                    case 11:
                         return;
                     default:
                         printf("Choix invalide.\n");
